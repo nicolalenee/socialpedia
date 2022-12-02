@@ -9,6 +9,7 @@ import morgan from 'morgan';
 //native packages
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { register} from "./controllers/auth.js";
 
 /* CONFIGURATIONS OF MIDDLEWARE */
 
@@ -40,6 +41,8 @@ const storage = multer.diskStorage({
 })
 const upload = multer({ storage });
 
+/* ROUTES WITH FILES */
+app.post("/auth/register", upload.single("picture"), register) // hit route, upload our picture locally in our dir, then register controller
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 6001;
