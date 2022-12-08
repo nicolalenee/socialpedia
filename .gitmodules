@@ -1,3 +1,3 @@
 [submodule "client"] 
   path = /client
-  url = git://https://github.com/nicolalenee/socialpedia.git
+  url = git://github.com/nicolalenee/socialpedia.git
