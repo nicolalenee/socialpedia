@@ -1,6 +1,5 @@
-import mongoose from "mongoose";
-
-const UserSchema = new mongoose.Schema(
+const { Schema, model } = require("mongoose");
+const UserSchema = new Schema(
   {
     firstName: {
       type: String,
@@ -33,6 +32,13 @@ const UserSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
+    posts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
+
     location: String,
     occupation: String,
     viewedProfile: Number,
@@ -41,5 +47,5 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const User = mongoose.model("User", UserSchema);
-export default User;
+const User = model("User", UserSchema);
+module.exports = User;

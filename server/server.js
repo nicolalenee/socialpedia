@@ -1,74 +1,65 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import multer from 'multer';
-import helmet from 'helmet';
-import morgan from 'morgan';
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const multer = require("multer");
+const helmet = require("helmet");
+const morgan = require("morgan");
 //native packages
-import path from 'path';
-import { fileURLToPath } from 'url';
+const path = require("path");
+const { fileURLToPath } = require("url");
+const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/users");
+const postRoutes = require("./routes/posts");
+const { register } = require("./controllers/auth");
+const { createPost } = require("./controllers/posts");
+const { verifyToken } = require("./middleware/auth");
+const db = require("./config/conection");
 
-
-import authRoutes from './routes/auth.js';
-import userRoutes from './routes/users.js'
-import postRoutes from './routes/posts.js'
-import { register} from "./controllers/auth.js";
-import { createPost } from './controllers/posts.js';
-import { verifyToken } from './middleware/auth.js';
-import User from './models/User.js';
-import Post from './models/Post.js';
-import { users, posts } from './data/index.js';
 /* CONFIGURATIONS OF MIDDLEWARE */
 
 // grab file url and directory url
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+//const __dirname = path.dirname(__filename);
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 app.use(helmet());
-app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin"}));
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
-app.use(bodyParser.urlencoded( { limit: "30mb", extended: true}));
+app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
 // set directory of where we keep the image assets
-app.use("/assets", express.static(path.join(__dirname, 'public/assets')));
+app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
 /* FILE STORAGE CONFIGURATION */
 const storage = multer.diskStorage({
   // when a user stores an image on our website it will be stored in this folder
   destination: function (req, file, cb) {
-    cb(null,"public/assets");
+    cb(null, "public/assets");
   },
-  filename: function(req, file, cb) {
+  filename: function (req, file, cb) {
     cb(null, file.originalname);
-  }
-})
+  },
+});
 const upload = multer({ storage });
 
 /* ROUTES WITH FILES */
-app.post("/auth/register", upload.single("picture"), register) // hit route, upload our picture locally in our dir, then register controller
+app.post("/auth/register", upload.single("picture"), register); // hit route, upload our picture locally in our dir, then register controller
 app.post("/posts", verifyToken, upload.single("picture"), createPost);
 
 /* ROUTES */
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
-app.use('/posts', postRoutes);
+app.use("/posts", postRoutes);
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 6001;
-mongoose.connect(process.env.MONGO_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(async () => {
-  app.listen(PORT, () => console.log(`🌎 Server connected! Server Port: ${PORT}`));
-  // ONLY ADD ONCE
-  // await User.deleteMany({});
-  // await Post.deleteMany({});
-  // User.insertMany(users);
-  // Post.insertMany(posts);
-}).catch((error) => console.log(`${error} did not connect`));
+
+db.once("open", () => {
+  app.listen(PORT, () => {
+    console.log(`API server running on port ${PORT}!`);
+  });
+});

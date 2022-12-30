@@ -1,18 +1,18 @@
-import mongoose from "mongoose";
+const { Schema, model } = require("mongoose");
 
-const postSchema = mongoose.Schema(
+const postSchema = new Schema(
   {
     userId: {
       type: String,
-      required: true
+      required: true,
     },
     firstName: {
       type: String,
-      required: true
+      required: true,
     },
     lastName: {
       type: String,
-      required: true
+      required: true,
     },
     location: String,
     description: String,
@@ -24,15 +24,14 @@ const postSchema = mongoose.Schema(
     },
     comments: {
       type: Array,
-      default: []
-    }
-
+      default: [],
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
-const Post = mongoose.model("Post", postSchema);
+const Post = model("Post", postSchema);
 
-export default Post;
+module.exports = Post;
